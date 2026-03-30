@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>VisualCube</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #e9ecef;
+            height: 100vh;
+            overflow: hidden;
+            color: #1e2a3e;
+        }
+
+        .app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #1f2b3c 0%, #0f1a24 100%);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 small {
+            font-size: 0.75rem;
+            background: #2a3b46;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: normal;
+        }
+
+        .save-status {
+            background: #2e7d5e;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* 主体 */
+        .main {
+            flex: 1;
+            display: flex;
+            padding: 1rem;
+            gap: 1rem;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* 左侧设置区 */
+        .settings {
+            flex: 2.2;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .settings-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            height: 100%;
+        }
+
+        /* 第一行三栏 */
+        .row-three {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.8rem;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* 第二行两栏 */
+        .row-two {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 0.8rem;
+            flex: 1.2;
+            min-height: 0;
+        }
+
+        /* 按钮行 */
+        .row-buttons {
+            flex-shrink: 0;
+            margin-top: 0.3rem;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 0.9rem 1rem;
+            border: 1px solid #e2edf2;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0f3b4c;
+            margin-bottom: 0.8rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 10px;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .param-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .param-row label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            width: 45px;
+            flex-shrink: 0;
+        }
+
+        .param-row input, 
+        .param-row select, 
+        .param-row textarea {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            background: white;
+            font-family: 'SF Mono', 'Segoe UI', monospace;
+            min-width: 0;
+        }
+
+        .param-row textarea {
+            resize: vertical;
+            min-height: 48px;
+            line-height: 1.4;
+        }
+
+        .param-row input:focus, 
+        .param-row select:focus, 
+        .param-row textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        .color-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .color-row input[type="text"] {
+            flex: 2;
+        }
+
+        .color-row input[type="color"] {
+            width: 38px;
+            height: 34px;
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        /* 按钮区域 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 28px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            flex: 1;
+            min-width: 85px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #1e4663;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0f2e44;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e2a3e;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-warning {
+            background: #fbbf24;
+            color: #78350f;
+        }
+
+        .btn-warning:hover {
+            background: #f59e0b;
+        }
+
+        /* 右侧预览区 */
+        .preview {
+            flex: 1.2;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .cube-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 18px;
+            padding: 1.2rem;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cube-img {
+            max-width: 100%;
+            max-height: 280px;
+            width: auto;
+            height: auto;
+            border-radius: 14px;
+            background: white;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            margin: 0 auto;
+        }
+
+        .info-bar {
+            margin-top: 1rem;
+            background: white;
+            border-radius: 12px;
+            padding: 0.7rem;
+            font-size: 0.7rem;
+            word-break: break-all;
+            font-family: monospace;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-bar strong {
+            font-size: 0.75rem;
+        }
+
+        .preview-buttons {
+            margin-top: 0.8rem;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .preview-buttons .btn {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            min-width: auto;
+        }
+
+        .loading {
+            opacity: 0.6;
+            filter: blur(0.5px);
+        }
+
+        footer {
+            flex-shrink: 0;
+            text-align: center;
+            padding: 0.4rem;
+            font-size: 0.65rem;
+            background: #f9fbfd;
+            border-top: 1px solid #e2edf2;
+            color: #5c6f87;
+        }
+
+        /* 确保无滚动条 */
+        .settings, .preview {
+            overflow: visible;
+        }
+
+        body, .app, .main {
+            overflow: hidden;
+        }
+
+        /* 小屏幕适配时允许滚动 */
+        @media (max-width: 1200px) {
+            .main {
+                flex-direction: column;
+                overflow: auto;
+            }
+            .settings {
+                max-height: 55%;
+                overflow: auto;
+            }
+            .preview {
+                min-height: 320px;
+            }
+            body {
+                overflow: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>
+            🧊 VisualCube
+        </h1>
+        <div class="save-status" id="saveStatus">💾 已保存</div>
+    </div>
+    
+    <div class="main">
+        <!-- 左侧设置区 -->
+        <div class="settings">
+            <div class="settings-grid">
+                <!-- 第一行：基础 | 视角 | 配色 -->
+                <div class="row-three">
+                    <!-- 基础卡片 -->
+                    <div class="card">
+                        <div class="card-title">📐 基础设置</div>
+                        <div class="card-content">
+                            <div class="param-row">
+                                <label>格式</label>
+                                <select id="fmt">
+                                    <option value="svg">SVG 矢量</option>
+                                    <option value="png">PNG</option>
+                                    <option value="jpg">JPG</option>
+                                    <option value="gif">GIF</option>
+                                </select>
+                            </div>
+                            <div class="param-row">
+                                <label>尺寸</label>
+                                <input type="number" id="size" value="200" min="50" max="600" step="10">
+                            </div>
+                            <div class="param-row">
+                                <label>阶数</label>
+                                <input type="number" id="pzl" value="3" min="1" max="10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 视角卡片 -->
+                    <div class="card">
+                        <div class="card-title">🔄 视角控制</div>
+                        <div class="card-content">
+                            <div class="param-row">
+                                <label>旋转</label>
+                                <input type="text" id="r" value="y45x-34" placeholder="y45x-34">
+                            </div>
+                            <div class="param-row">
+                                <label>视图</label>
+                                <select id="view">
+                                    <option value="">无</option>
+                                    <option value="plan">plan 俯视</option>
+                                    <option value="trans">trans 透明</option>
+                                </select>
+                            </div>
+                            <div class="param-row">
+                                <label>遮罩</label>
+                                <input type="text" id="stage" placeholder="cross / f2l / oll">
+                            </div>
+                            <div class="param-row">
+                                <label>投影</label>
+                                <input type="number" id="dist" value="5" min="1" max="20">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 配色/透明度卡片 -->
+                    <div class="card">
+                        <div class="card-title">🎨 配色 & 透明</div>
+                        <div class="card-content">
+                            <div class="param-row">
+                                <label>配色</label>
+                                <input type="text" id="sch" value="yrbwog" placeholder="yrbwog">
+                            </div>
+                            <div class="param-row">
+                                <label>背景</label>
+                                <div class="color-row">
+                                    <input type="text" id="bg" value="white">
+                                    <input type="color" id="bgColorPicker">
+                                </div>
+                            </div>
+                            <div class="param-row">
+                                <label>底色</label>
+                                <input type="text" id="cc" value="black">
+                            </div>
+                            <div class="param-row">
+                                <label>魔方透</label>
+                                <input type="number" id="co" value="100" min="0" max="100" step="5">
+                            </div>
+                            <div class="param-row">
+                                <label>贴纸透</label>
+                                <input type="number" id="fo" value="100" min="0" max="100" step="5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第二行：状态 + 箭头 -->
+                <div class="row-two">
+                    <!-- 状态卡片 -->
+                    <div class="card">
+                        <div class="card-title">🎯 魔方状态</div>
+                        <div class="card-content">
+                            <div class="param-row">
+                                <label>setup</label>
+                                <input type="text" id="alg" value="R2F2R2" placeholder="">
+                            </div>
+                            <div class="param-row">
+                                <label>alg</label>
+                                <input type="text" id="case" placeholder="">
+                            </div>
+                            <div class="param-row">
+                                <label>面块定义</label>
+                                <textarea id="fd" rows="2" placeholder="uuuuuuuuu rrrrrrrrr ... 54字符"></textarea>
+                            </div>
+                            <div class="param-row">
+                                <label>颜色代码</label>
+                                <textarea id="fc" rows="2" placeholder="yyyyyyyyy rrrrrrrrr ... 替代fd"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 箭头卡片 -->
+                    <div class="card">
+                        <div class="card-title">➡️ 箭头标注</div>
+                        <div class="card-content">
+                            <div class="param-row">
+                                <label>定义</label>
+                                <input type="text" id="arw" placeholder="U0U2, R6R2R0-s8-i5">
+                            </div>
+                            <div class="param-row">
+                                <label>颜色</label>
+                                <input type="text" id="ac" value="grey" placeholder="grey / red">
+                            </div>
+                            <div style="flex: 1;"></div>
+                            <div style="flex: 1;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第三行：操作按钮 -->
+                <div class="row-buttons">
+                    <div class="action-buttons">
+                        <button type="button" id="generateBtn" class="btn btn-primary">✨ 生成图像</button>
+                        <button type="button" id="resetBtn" class="btn btn-secondary">↺ 重置默认</button>
+                        <button type="button" id="clearStorageBtn" class="btn btn-warning">🗑️ 清除保存</button>
+                        <button type="button" id="copyUrlBtn" class="btn btn-secondary">📋 复制链接</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧预览区 -->
+        <div class="preview">
+            <div class="cube-container">
+                <img id="cubeImg" class="cube-img" alt="VisualCube" src="https://visualcube.api.cubing.net/visualcube.php?fmt=svg&size=200&pzl=3&alg=R2F2R2&r=y45x-34">
+                <div class="info-bar">
+                    <strong>🔗 当前链接</strong><br>
+                    <span id="urlDisplay" style="font-size: 10px;"></span>
+                </div>
+                <div class="preview-buttons">
+                    <button id="openNewTabBtn" class="btn btn-secondary">🔍 新标签页查看</button>
+                    <button id="downloadBtn" class="btn btn-secondary">💾 下载图片</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        ⚡ 所有参数自动保存至浏览器 | 刷新页面自动恢复 | 大字体设计，清晰易读
+    </footer>
+</div>
+
+<script>
+    (function() {
+        const BASE_URL = "https://visualcube.api.cubing.net/visualcube.php";
+        const STORAGE_KEY = "visualcube_largefont_v5";
+        
+        const cubeImg = document.getElementById('cubeImg');
+        const urlDisplaySpan = document.getElementById('urlDisplay');
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const clearStorageBtn = document.getElementById('clearStorageBtn');
+        const copyUrlBtn = document.getElementById('copyUrlBtn');
+        const openNewTabBtn = document.getElementById('openNewTabBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const saveStatusDiv = document.getElementById('saveStatus');
+        
+        const formFields = {
+            fmt: document.getElementById('fmt'),
+            size: document.getElementById('size'),
+            pzl: document.getElementById('pzl'),
+            alg: document.getElementById('alg'),
+            case: document.getElementById('case'),
+            fd: document.getElementById('fd'),
+            fc: document.getElementById('fc'),
+            r: document.getElementById('r'),
+            view: document.getElementById('view'),
+            stage: document.getElementById('stage'),
+            dist: document.getElementById('dist'),
+            sch: document.getElementById('sch'),
+            bg: document.getElementById('bg'),
+            cc: document.getElementById('cc'),
+            co: document.getElementById('co'),
+            fo: document.getElementById('fo'),
+            arw: document.getElementById('arw'),
+            ac: document.getElementById('ac')
+        };
+        
+        const bgColorPicker = document.getElementById('bgColorPicker');
+        let saveTimeout = null;
+        let currentUrl = "";
+        
+        function showSaveStatus(msg = "💾 已保存") {
+            saveStatusDiv.innerHTML = msg;
+            setTimeout(() => {
+                if (saveStatusDiv.innerHTML === msg) saveStatusDiv.innerHTML = "💾 已保存";
+            }, 1200);
+        }
+        
+        function saveSettings() {
+            const settings = {};
+            for (const [key, el] of Object.entries(formFields)) {
+                settings[key] = el.value;
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+            showSaveStatus("💾 已保存");
+        }
+        
+        function debouncedSave() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveSettings, 400);
+        }
+        
+        function loadSettings() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) return false;
+            try {
+                const settings = JSON.parse(saved);
+                for (const [key, val] of Object.entries(settings)) {
+                    if (formFields[key]) formFields[key].value = val;
+                }
+                return true;
+            } catch(e) { return false; }
+        }
+        
+        function resetToDefaults() {
+            formFields.fmt.value = "svg";
+            formFields.size.value = "200";
+            formFields.pzl.value = "3";
+            formFields.alg.value = "";
+            formFields.case.value = "";
+            formFields.fd.value = "";
+            formFields.fc.value = "";
+            formFields.r.value = "y45x-34";
+            formFields.view.value = "plan";
+            formFields.stage.value = "";
+            formFields.dist.value = "5";
+            formFields.sch.value = "yrbwog";
+            formFields.bg.value = "t";
+            formFields.cc.value = "black";
+            formFields.co.value = "100";
+            formFields.fo.value = "100";
+            formFields.arw.value = "";
+            formFields.ac.value = "grey";
+            syncColorPicker();
+            saveSettings();
+            loadCubeImage();
+        }
+        
+        function clearSavedSettings() {
+            localStorage.removeItem(STORAGE_KEY);
+            resetToDefaults();
+            showSaveStatus("🗑️ 已清除");
+        }
+        
+        function syncColorPicker() {
+            let bgVal = formFields.bg.value.trim();
+            if (bgVal.match(/^#[0-9A-Fa-f]{6}$/) || bgVal.match(/^#[0-9A-Fa-f]{3}$/)) {
+                bgColorPicker.value = bgVal;
+            } else if (bgVal === 'white') bgColorPicker.value = '#ffffff';
+            else if (bgVal === 'black') bgColorPicker.value = '#000000';
+            else if (bgVal === 'grey') bgColorPicker.value = '#808080';
+            else if (bgVal === 'silver') bgColorPicker.value = '#c0c0c0';
+            else if (bgVal === 'yellow') bgColorPicker.value = '#ffff00';
+            else if (bgVal === 'red') bgColorPicker.value = '#ff0000';
+            else if (bgVal === 'blue') bgColorPicker.value = '#0000ff';
+            else if (bgVal === 'green') bgColorPicker.value = '#00ff00';
+            else bgColorPicker.value = '#ffffff';
+        }
+        
+        function buildVisualCubeURL() {
+            const params = new URLSearchParams();
+            params.set('fmt', formFields.fmt.value);
+            if (formFields.size.value && parseInt(formFields.size.value) > 0) params.set('size', formFields.size.value);
+            if (formFields.pzl.value && parseInt(formFields.pzl.value) >= 1) params.set('pzl', formFields.pzl.value);
+            
+            const algVal = formFields.alg.value.trim();
+            const caseVal = formFields.case.value.trim();
+            if (caseVal) params.set('case', caseVal);
+            else if (algVal) params.set('alg', algVal);
+            
+            const fcVal = formFields.fc.value.trim();
+            const fdVal = formFields.fd.value.trim();
+            if (fcVal) params.set('fc', fcVal);
+            else if (fdVal) params.set('fd', fdVal);
+            
+            if (formFields.r.value.trim()) params.set('r', formFields.r.value.trim());
+            if (formFields.view.value) params.set('view', formFields.view.value);
+            if (formFields.stage.value.trim()) params.set('stage', formFields.stage.value.trim());
+            if (formFields.dist.value && formFields.dist.value !== "5") params.set('dist', formFields.dist.value);
+            if (formFields.sch.value.trim()) params.set('sch', formFields.sch.value.trim());
+            if (formFields.bg.value.trim()) params.set('bg', formFields.bg.value.trim());
+            if (formFields.cc.value.trim()) params.set('cc', formFields.cc.value.trim());
+            if (formFields.co.value && parseInt(formFields.co.value) !== 100) params.set('co', formFields.co.value);
+            if (formFields.fo.value && parseInt(formFields.fo.value) !== 100) params.set('fo', formFields.fo.value);
+            if (formFields.arw.value.trim()) params.set('arw', formFields.arw.value.trim());
+            if (formFields.ac.value.trim() && formFields.ac.value.trim() !== "grey") params.set('ac', formFields.ac.value.trim());
+            
+            return BASE_URL + "?" + params.toString();
+        }
+        
+        function loadCubeImage() {
+            const url = buildVisualCubeURL();
+            currentUrl = url;
+            let displayUrl = url;
+            if (displayUrl.length > 85) displayUrl = displayUrl.substring(0, 82) + "...";
+            urlDisplaySpan.innerText = displayUrl;
+            cubeImg.classList.add('loading');
+            cubeImg.src = url;
+            cubeImg.onload = () => cubeImg.classList.remove('loading');
+            cubeImg.onerror = () => {
+                cubeImg.classList.remove('loading');
+                cubeImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' font-size='12' text-anchor='middle' fill='red'%3E加载失败%3C/text%3E%3C/svg%3E";
+            };
+        }
+        
+        function copyUrl() {
+            const fullUrl = buildVisualCubeURL();
+            navigator.clipboard.writeText(fullUrl).then(() => alert("✅ 链接已复制")).catch(() => prompt("手动复制:", fullUrl));
+        }
+        
+        function openNewTab() { window.open(buildVisualCubeURL(), '_blank'); }
+        
+        async function downloadImage() {
+            const imgUrl = cubeImg.src;
+            if (!imgUrl || imgUrl.includes("加载失败")) { alert("请先生成有效图片"); return; }
+            try {
+                const resp = await fetch(imgUrl);
+                if (!resp.ok) throw new Error();
+                const blob = await resp.blob();
+                const a = document.createElement('a');
+                let ext = formFields.fmt.value;
+                if (ext === 'svg') ext = 'svg';
+                else if (ext === 'png') ext = 'png';
+                else if (ext === 'jpg') ext = 'jpg';
+                else if (ext === 'gif') ext = 'gif';
+                else ext = 'png';
+                a.download = `visualcube.${ext}`;
+                a.href = URL.createObjectURL(blob);
+                a.click();
+                URL.revokeObjectURL(a.href);
+            } catch(e) { alert("下载失败，可右键另存"); }
+        }
+        
+        function bindEvents() {
+            for (const [key, el] of Object.entries(formFields)) {
+                const handler = () => {
+                    if (key === 'bg') syncColorPicker();
+                    debouncedSave();
+                    loadCubeImage();
+                };
+                el.addEventListener('change', handler);
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.addEventListener('input', handler);
+                }
+            }
+            bgColorPicker.addEventListener('input', (e) => {
+                formFields.bg.value = e.target.value;
+                debouncedSave();
+                loadCubeImage();
+            });
+            generateBtn.addEventListener('click', () => { saveSettings(); loadCubeImage(); });
+            resetBtn.addEventListener('click', resetToDefaults);
+            clearStorageBtn.addEventListener('click', clearSavedSettings);
+            copyUrlBtn.addEventListener('click', copyUrl);
+            openNewTabBtn.addEventListener('click', openNewTab);
+            downloadBtn.addEventListener('click', downloadImage);
+        }
+        
+        function init() {
+            const hasSaved = loadSettings();
+            if (!hasSaved) saveSettings();
+            syncColorPicker();
+            bindEvents();
+            loadCubeImage();
+        }
+        
+        init();
+    })();
+</script>
+</body>
+</html>
